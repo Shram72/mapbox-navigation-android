@@ -282,7 +282,8 @@ public class NavigationMapboxMap {
    * if no route is drawn.
    */
   public void removeRoute() {
-    mapRoute.removeRoute();
+    mapRoute.updateRouteVisibilityTo(false);
+    mapRoute.updateRouteArrowVisibilityTo(false);
   }
 
   /**
