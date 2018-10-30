@@ -20,6 +20,7 @@ import com.mapbox.services.android.navigation.testapp.example.ui.navigation.*
 import com.mapbox.services.android.navigation.ui.v5.camera.DynamicCamera
 import com.mapbox.services.android.navigation.ui.v5.voice.NavigationSpeechPlayer
 import com.mapbox.services.android.navigation.ui.v5.voice.SpeechPlayerProvider
+import com.mapbox.services.android.navigation.ui.v5.voice.VoiceInstructionLoader
 import com.mapbox.services.android.navigation.v5.milestone.Milestone
 import com.mapbox.services.android.navigation.v5.navigation.MapboxNavigation
 import com.mapbox.services.android.navigation.v5.routeprogress.RouteProgress
@@ -59,14 +60,14 @@ class ExampleViewModel(application: Application) : AndroidViewModel(application)
     locationEngine.priority = LocationEnginePriority.HIGH_ACCURACY
     locationEngine.fastestInterval = ONE_SECOND_INTERVAL
 
-    // Initialize the speech player and pass to milestone event listener for instructions
-    val english = US.language // TODO localization
-    val speechPlayerProvider = SpeechPlayerProvider(getApplication(), english, true, accessToken)
-    speechPlayer = NavigationSpeechPlayer(speechPlayerProvider)
-
     // Initialize navigation and pass the LocationEngine
     navigation = MapboxNavigation(getApplication(), accessToken)
     navigation.locationEngine = locationEngine
+    // Initialize the speech player and pass to milestone event listener for instructions
+    val english = US.language // TODO localization
+    val voiceInstructionLoader = VoiceInstructionLoader(getApplication(), accessToken)
+    val speechPlayerProvider = SpeechPlayerProvider(getApplication(), english, true, voiceInstructionLoader)
+    speechPlayer = NavigationSpeechPlayer(speechPlayerProvider)
     navigation.addMilestoneEventListener(ExampleMilestoneEventListener(milestone, speechPlayer))
     navigation.addProgressChangeListener(ExampleProgressChangeListener(location, progress))
     navigation.addOffRouteListener(ExampleOffRouteListener(this))
