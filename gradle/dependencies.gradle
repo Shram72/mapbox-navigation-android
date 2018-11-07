@@ -10,9 +10,10 @@ ext {
   version = [
       mapboxMapSdk       : '6.6.5',
       // TODO Remove SNAPSHOT when 4.1.0 gets released - See https://github.com/mapbox/mapbox-java/pull/895
-      mapboxSdkServices  : '4.1.0-SNAPSHOT',
+      mapboxSdkServices  : '4.1.0-20181106.201007-19',
+      turf               : '4.1.0-SNAPSHOT',
       mapboxEvents       : '3.5.2',
-      mapboxNavigator    : '3.2.1',
+      mapboxNavigator    : '3.3.1',
       autoValue          : '1.5.4',
       autoValueParcel    : '0.2.5',
       junit              : '4.12',
@@ -50,7 +51,7 @@ ext {
       // mapbox
       mapboxMapSdk           : "com.mapbox.mapboxsdk:mapbox-android-sdk:${version.mapboxMapSdk}",
       mapboxSdkServices      : "com.mapbox.mapboxsdk:mapbox-sdk-services:${version.mapboxSdkServices}",
-      mapboxSdkTurf          : "com.mapbox.mapboxsdk:mapbox-sdk-turf:${version.mapboxSdkServices}",
+      mapboxSdkTurf          : "com.mapbox.mapboxsdk:mapbox-sdk-turf:${version.turf}",
       mapboxEvents           : "com.mapbox.mapboxsdk:mapbox-android-telemetry:${version.mapboxEvents}",
       mapboxNavigator        : "com.mapbox.navigator:mapbox-navigation-native:${version.mapboxNavigator}",
 
@@ -101,7 +102,6 @@ ext {
       gmsLocation            : "com.google.android.gms:play-services-location:${version.gmsLocation}",
 
       errorprone             : "com.google.errorprone:error_prone_core:${version.errorprone}"
-
   ]
 
   pluginDependencies = [

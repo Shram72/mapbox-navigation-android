@@ -102,4 +102,15 @@ class MapboxNavigator {
     }
     return value;
   }
+
+  /**
+   * Takes in a string for a path to a TAR file containing routing tiles, and unpacks them to the
+   * specified destination path.
+   *
+   * @param srcPath the path to the TAR file containing routing tiles
+   * @param destPath the path to the directory in which to unpack the tiles
+   */
+  public void unpackTiles(String srcPath, String destPath) {
+    navigator.unpackTiles(srcPath, destPath);
+  }
 }
