@@ -392,6 +392,7 @@ public class NavigationViewModel extends AndroidViewModel {
   private void startNavigation(DirectionsRoute route) {
     if (route != null) {
       navigation.startNavigation(route);
+      voiceInstructionsToAnnounce = 0;
       voiceInstructionCache.preCache(route);
     }
   }

@@ -41,24 +41,6 @@ public class VoiceInstructionLoader {
     setup(context);
   }
 
-  public void setupMapboxSpeechBuilder(String language) {
-    if (mapboxSpeechBuilder == null) {
-      mapboxSpeechBuilder = MapboxSpeech.builder()
-        .accessToken(accessToken)
-        .language(language)
-        .cache(cache)
-        .interceptor(provideOfflineCacheInterceptor());
-    }
-  }
-
-  public void requestInstruction(String instruction, String textType, Callback<ResponseBody> callback) {
-    MapboxSpeech mapboxSpeech = mapboxSpeechBuilder
-      .instruction(instruction)
-      .textType(textType)
-      .build();
-    mapboxSpeech.enqueueCall(callback);
-  }
-
   public void evictVoiceInstructions() {
     List<String> urlsToRemove = new ArrayList<>();
     for (int i = 0; i < urlsCached.size() && i < VOICE_INSTRUCTIONS_TO_EVICT_THRESHOLD; i++) {
@@ -79,17 +61,35 @@ public class VoiceInstructionLoader {
     urlsCached.removeAll(urlsToRemove);
   }
 
-  public void flushCache() {
+  public void cacheInstructions(List<String> instructions) {
+    for (String instruction : instructions) {
+      cacheInstruction(instruction);
+    }
+  }
+
+  void setupMapboxSpeechBuilder(String language) {
+    if (mapboxSpeechBuilder == null) {
+      mapboxSpeechBuilder = MapboxSpeech.builder()
+        .accessToken(accessToken)
+        .language(language)
+        .cache(cache)
+        .interceptor(provideOfflineCacheInterceptor());
+    }
+  }
+
+  void requestInstruction(String instruction, String textType, Callback<ResponseBody> callback) {
+    MapboxSpeech mapboxSpeech = mapboxSpeechBuilder
+      .instruction(instruction)
+      .textType(textType)
+      .build();
+    mapboxSpeech.enqueueCall(callback);
+  }
+
+  void flushCache() {
     try {
       cache.delete();
     } catch (IOException exception) {
       Timber.e(exception);
-    }
-  }
-
-  public void cacheInstructions(List<String> instructions) {
-    for (String instruction : instructions) {
-      cacheInstruction(instruction);
     }
   }
 

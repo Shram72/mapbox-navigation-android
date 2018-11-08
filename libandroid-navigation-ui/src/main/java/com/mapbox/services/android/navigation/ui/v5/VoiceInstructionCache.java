@@ -16,7 +16,6 @@ class VoiceInstructionCache {
   private static final int VOICE_INSTRUCTIONS_TO_CACHE_THRESHOLD = 5;
   private final MapboxNavigation navigation;
   private final VoiceInstructionLoader voiceInstructionLoader;
-  private int voiceInstructionsToAnnounce = 0;
   private int totalVoiceInstructions = 0;
   private int currentVoiceInstructionsCachedIndex = 0;
   private boolean isVoiceInstructionsToCacheThresholdReached = false;
@@ -27,7 +26,6 @@ class VoiceInstructionCache {
   }
 
   void preCache(DirectionsRoute route) {
-    voiceInstructionsToAnnounce = 0;
     totalVoiceInstructions = 0;
     currentVoiceInstructionsCachedIndex = 0;
     isVoiceInstructionsToCacheThresholdReached = false;
@@ -68,7 +66,6 @@ class VoiceInstructionCache {
   }
 
   void update(int voiceInstructionsToAnnounce) {
-    this.voiceInstructionsToAnnounce = voiceInstructionsToAnnounce;
     if (voiceInstructionsToAnnounce % VOICE_INSTRUCTIONS_TO_CACHE_THRESHOLD == 0) {
       isVoiceInstructionsToCacheThresholdReached = true;
     }
