@@ -14,6 +14,10 @@ class MapboxNavigator {
 
   private final Navigator navigator;
 
+  MapboxNavigator() {
+    this(new Navigator());
+  }
+
   MapboxNavigator(Navigator navigator) {
     this.navigator = navigator;
   }
@@ -110,7 +114,7 @@ class MapboxNavigator {
    * @param srcPath the path to the TAR file containing routing tiles
    * @param destPath the path to the directory in which to unpack the tiles
    */
-  public void unpackTiles(String srcPath, String destPath) {
+  public synchronized void unpackTiles(String srcPath, String destPath) {
     navigator.unpackTiles(srcPath, destPath);
   }
 }

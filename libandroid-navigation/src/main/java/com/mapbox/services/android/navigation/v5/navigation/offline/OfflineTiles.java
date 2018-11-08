@@ -21,13 +21,7 @@ import retrofit2.Response;
  */
 @AutoValue
 public abstract class OfflineTiles {
-
-  /**
-   *
-   * @return
-   */
-  @NonNull
-  public abstract String srcPath();
+//  Navigator navigator
 
   /**
    *
@@ -108,13 +102,6 @@ public abstract class OfflineTiles {
 
     /**
      *
-     * @param srcPath
-     * @return
-     */
-    public abstract Builder srcPath(String srcPath);
-
-    /**
-     *
      * @param destPath
      * @return
      */
@@ -142,29 +129,32 @@ public abstract class OfflineTiles {
     }
   }
 
-   private class DownloadCallback implements Callback<ResponseBody> {
+  private class DownloadCallback implements Callback<ResponseBody> {
 
     @Override
     public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-      new DownloadTask(srcPath(), ".tar",
+      new DownloadTask(destPath(), "tar",
         new DownloadTask.DownloadListener() {
-        @Override
-        public void onFinishedDownloading(@NonNull File file) {
-          DownloadTask.DownloadListener downloadListener = OfflineTiles.this.downloadListener();
-          if (downloadListener != null) {
-            downloadListener.onFinishedDownloading(file);
-          }
-        }
+          @Override
+          public void onFinishedDownloading(@NonNull File file) {
+            DownloadTask.DownloadListener downloadListener = OfflineTiles.this.downloadListener();
+            if (downloadListener != null) {
+              downloadListener.onFinishedDownloading(file);
+            }
 
-        @Override
-        public void onErrorDownloading() {
-          DownloadTask.DownloadListener downloadListener = OfflineTiles.this.downloadListener();
-          if (downloadListener != null) {
-            downloadListener.onErrorDownloading();
+//            navigator.unpackTiles(destPath(), destPath() + "/tiles");
           }
-        }
-        // todo change to THREAD_POOL_EXECUTOR
-      }).executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, response.body());
+
+          @Override
+          public void onErrorDownloading() {
+            DownloadTask.DownloadListener downloadListener = OfflineTiles.this.downloadListener();
+            if (downloadListener != null) {
+              downloadListener.onErrorDownloading();
+            }
+          }
+
+          // todo change to THREAD_POOL_EXECUTOR
+        }).executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, response.body());
 
 
     }

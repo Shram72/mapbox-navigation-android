@@ -2,19 +2,30 @@ package com.mapbox.services.android.navigation.testapp.activity;
 
 import android.graphics.Color;
 import android.graphics.PointF;
-import android.graphics.RectF;
 import android.os.Bundle;
+import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import com.mapbox.geojson.BoundingBox;
+import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.annotations.Marker;
+import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.style.layers.FillLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.services.android.navigation.testapp.R;
+import com.mapbox.services.android.navigation.v5.navigation.offline.OfflineTiles;
+import com.mapbox.services.android.navigation.v5.utils.DownloadTask;
 
+import java.io.File;
+
+import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.fillColor;
@@ -25,10 +36,14 @@ public class OfflineRegionDownloadActivity extends AppCompatActivity {
   private TextView downloadButton;
   private View selectionBox;
   private MapboxMap mapboxMap;
+  private OfflineTiles offlineTiles;
+  private String tileVersion = "2018-10-16";
+
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+
 
     // Mapbox access token is configured here. This needs to be called either in your application
     // object or in the same activity which contains the mapview.
@@ -36,6 +51,7 @@ public class OfflineRegionDownloadActivity extends AppCompatActivity {
 
     // This contains the MapView in XML and needs to be called after the access token is configured.
     setContentView(R.layout.activity_offline_region_download);
+    ButterKnife.bind(this);
 
     // Define our views, ones the center box and the others our view container used for the
     // snackbar.
@@ -47,16 +63,15 @@ public class OfflineRegionDownloadActivity extends AppCompatActivity {
     mapView.getMapAsync(mapboxMap -> {
 
       this.mapboxMap = mapboxMap;
-      GeoJsonSource geoJsonSource = new GeoJsonSource("highlighted-shapes-source");
+      GeoJsonSource geoJsonSource = new GeoJsonSource("bounding-box-source");
 
       mapboxMap.addSource(geoJsonSource);
 //      geoJsonSource.
 
 
       // add a layer to the map that highlights the maps buildings inside the bounding box.
-      FillLayer fillLayer =
-        new FillLayer("highlighted-shapes-layer", "highlighted-shapes-source")
-          .withProperties(fillColor(Color.parseColor("#50667F")));
+      FillLayer fillLayer = new FillLayer("bounding-box-layer", "bounding-box-source")
+        .withProperties(fillColor(Color.parseColor("#50667F")));
 
       mapboxMap.addLayer(fillLayer);
 
@@ -100,16 +115,57 @@ public class OfflineRegionDownloadActivity extends AppCompatActivity {
 
   @OnClick(R.id.download_button)
   public void onDownloadClick() {
-    int top = selectionBox.getTop() - mapView.getTop();
-    int left = selectionBox.getLeft() - mapView.getLeft();
-    RectF box = new RectF(left, top, left + selectionBox.getWidth(), top + selectionBox.getHeight());
-    LatLng topLeft = mapboxMap.getProjection().fromScreenLocation(new PointF(left, top));
-    LatLng bottomRight = mapboxMap.getProjection().fromScreenLocation(new PointF(left + selectionBox.getWidth(), top + selectionBox.getHeight()));
-//    BoundingBox.
-//      projec
+    String path = Environment.getExternalStoragePublicDirectory("Offline").getAbsolutePath();
+    Log.d("Download", path);
+    OfflineTiles offlineTiles = OfflineTiles.builder()
+      .accessToken(Mapbox.getAccessToken())
+      .version(tileVersion)
+      .boundingBox(getBoundingBox())
+      .destPath(Environment.getExternalStoragePublicDirectory("Offline").getAbsolutePath())
+      .downloadListener(getDownloadListener())
+      .build();
+
+    offlineTiles.getRouteTiles();
   }
 
+  private DownloadTask.DownloadListener getDownloadListener() {
+    return new DownloadTask.DownloadListener() {
+      @Override
+      public void onFinishedDownloading(@NonNull File file) {
+        Log.d("Download", "DONE!!!!!!!");
 
+        String tarPath =
+          Environment.getExternalStoragePublicDirectory("Offline").getAbsolutePath() + "/tiles/"
+            + tileVersion;
+      }
+
+      @Override
+      public void onErrorDownloading() {
+        Log.d("Download", "broken");
+
+      }
+    };
+  }
+
+  private BoundingBox getBoundingBox() {
+    int top = selectionBox.getTop() - mapView.getTop();
+    int left = selectionBox.getLeft() - mapView.getLeft();
+    int right = left + selectionBox.getWidth();
+    int bottom = top + selectionBox.getHeight();
+
+    LatLng southWest = mapboxMap.getProjection().fromScreenLocation(new PointF(left, bottom));
+    LatLng northEast = mapboxMap.getProjection().fromScreenLocation(new PointF(right, top));
+
+    Marker topLeftMarker = mapboxMap.addMarker(new MarkerOptions()
+      .position(southWest));
+
+    Marker bottomRightMarker = mapboxMap.addMarker(new MarkerOptions()
+      .position(northEast));
+
+    return BoundingBox.fromLngLats(
+      southWest.getLongitude(), southWest.getLatitude(),
+      northEast.getLongitude(), northEast.getLatitude());
+  }
 
   @Override
   public void onResume() {
