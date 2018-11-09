@@ -84,9 +84,6 @@ public class DownloadTask extends AsyncTask<ResponseBody, Void, File> {
         return file;
 
       } catch (IOException exception) {
-        if (downloadListener != null) {
-          downloadListener.onErrorDownloading();
-        }
         return null;
 
       } finally {
