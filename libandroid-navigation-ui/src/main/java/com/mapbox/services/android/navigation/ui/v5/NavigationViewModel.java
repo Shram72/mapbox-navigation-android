@@ -50,11 +50,16 @@ import com.mapbox.services.android.navigation.v5.utils.DistanceFormatter;
 import com.mapbox.services.android.navigation.v5.utils.LocaleUtils;
 import com.mapbox.services.android.navigation.v5.utils.RouteUtils;
 
+import java.io.File;
 import java.util.List;
+
+import okhttp3.Cache;
 
 public class NavigationViewModel extends AndroidViewModel {
 
   private static final String EMPTY_STRING = "";
+  private static final String OKHTTP_INSTRUCTION_CACHE = "okhttp-instruction-cache";
+  private static final long TEN_MEGABYTE_CACHE_SIZE = 10 * 1024 * 1024;
 
   public final MutableLiveData<InstructionModel> instructionModel = new MutableLiveData<>();
   public final MutableLiveData<BannerInstructionModel> bannerInstructionModel = new MutableLiveData<>();
@@ -268,7 +273,9 @@ public class NavigationViewModel extends AndroidViewModel {
 
   @NonNull
   private SpeechPlayerProvider initializeSpeechPlayerProvider(boolean voiceLanguageSupported) {
-    voiceInstructionLoader = new VoiceInstructionLoader(getApplication(), accessToken);
+    Cache cache = new Cache(new File(getApplication().getCacheDir(), OKHTTP_INSTRUCTION_CACHE),
+      TEN_MEGABYTE_CACHE_SIZE);
+    voiceInstructionLoader = new VoiceInstructionLoader(getApplication(), accessToken, cache);
     return new SpeechPlayerProvider(getApplication(), language, voiceLanguageSupported, voiceInstructionLoader);
   }
 

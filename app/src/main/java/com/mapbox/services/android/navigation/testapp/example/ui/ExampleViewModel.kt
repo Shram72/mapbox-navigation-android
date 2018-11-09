@@ -24,13 +24,17 @@ import com.mapbox.services.android.navigation.ui.v5.voice.VoiceInstructionLoader
 import com.mapbox.services.android.navigation.v5.milestone.Milestone
 import com.mapbox.services.android.navigation.v5.navigation.MapboxNavigation
 import com.mapbox.services.android.navigation.v5.routeprogress.RouteProgress
+import okhttp3.Cache
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import timber.log.Timber
+import java.io.File
 import java.util.Locale.US
 
 private const val ONE_SECOND_INTERVAL = 1000
+private const val EXAMPLE_INSTRUCTION_CACHE = "component-navigation-instruction-cache"
+private const val TEN_MEGABYTE_CACHE_SIZE: Long = 10 * 1024 * 1024
 
 class ExampleViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -65,7 +69,9 @@ class ExampleViewModel(application: Application) : AndroidViewModel(application)
     navigation.locationEngine = locationEngine
     // Initialize the speech player and pass to milestone event listener for instructions
     val english = US.language // TODO localization
-    val voiceInstructionLoader = VoiceInstructionLoader(getApplication(), accessToken)
+    val cache = Cache(File(application.cacheDir, EXAMPLE_INSTRUCTION_CACHE),
+            TEN_MEGABYTE_CACHE_SIZE)
+    val voiceInstructionLoader = VoiceInstructionLoader(getApplication(), accessToken, cache)
     val speechPlayerProvider = SpeechPlayerProvider(getApplication(), english, true, voiceInstructionLoader)
     speechPlayer = NavigationSpeechPlayer(speechPlayerProvider)
     navigation.addMilestoneEventListener(ExampleMilestoneEventListener(milestone, speechPlayer))

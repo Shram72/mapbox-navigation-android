@@ -50,12 +50,14 @@ import com.mapbox.services.android.navigation.v5.offroute.OffRouteListener;
 import com.mapbox.services.android.navigation.v5.routeprogress.ProgressChangeListener;
 import com.mapbox.services.android.navigation.v5.routeprogress.RouteProgress;
 
+import java.io.File;
 import java.util.List;
 import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import okhttp3.Cache;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -72,6 +74,8 @@ public class ComponentNavigationActivity extends HistoryActivity implements OnMa
   private static final double BEARING_TOLERANCE = 90d;
   private static final String LONG_PRESS_MAP_MESSAGE = "Long press the map to select a destination.";
   private static final String SEARCHING_FOR_GPS_MESSAGE = "Searching for GPS...";
+  private static final String COMPONENT_NAVIGATION_INSTRUCTION_CACHE = "component-navigation-instruction-cache";
+  private static final long TEN_MEGABYTE_CACHE_SIZE = 10 * 1024 * 1024;
   private static final int ZERO_PADDING = 0;
   private static final double DEFAULT_ZOOM = 12.0;
   private static final double DEFAULT_TILT = 0d;
@@ -313,8 +317,10 @@ public class ComponentNavigationActivity extends HistoryActivity implements OnMa
 
   private void initializeSpeechPlayer() {
     String english = Locale.US.getLanguage();
+    Cache cache = new Cache(new File(getApplication().getCacheDir(), COMPONENT_NAVIGATION_INSTRUCTION_CACHE),
+      TEN_MEGABYTE_CACHE_SIZE);
     VoiceInstructionLoader voiceInstructionLoader = new VoiceInstructionLoader(getApplication(),
-      Mapbox.getAccessToken());
+      Mapbox.getAccessToken(), cache);
     SpeechPlayerProvider speechPlayerProvider = new SpeechPlayerProvider(getApplication(), english, true,
       voiceInstructionLoader);
     speechPlayer = new NavigationSpeechPlayer(speechPlayerProvider);

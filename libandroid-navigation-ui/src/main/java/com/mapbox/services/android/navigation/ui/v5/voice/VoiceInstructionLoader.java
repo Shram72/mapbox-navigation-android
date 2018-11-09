@@ -6,7 +6,6 @@ import android.net.NetworkInfo;
 
 import com.mapbox.api.speech.v1.MapboxSpeech;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -24,24 +23,22 @@ import retrofit2.Callback;
 import timber.log.Timber;
 
 public class VoiceInstructionLoader {
-  private static final String OKHTTP_INSTRUCTION_CACHE = "okhttp-instruction-cache";
-  private static final long TEN_MEGABYTE_CACHE_SIZE = 10 * 1024 * 1024;
   private static final int VOICE_INSTRUCTIONS_TO_EVICT_THRESHOLD = 4;
   private static final String SSML_TEXT_TYPE = "ssml";
-  private ConnectivityManager connectivityManager;
-  private String accessToken;
-  private Cache cache;
+  private final ConnectivityManager connectivityManager;
+  private final String accessToken;
+  private final List<String> urlsCached;
+  private final Cache cache;
   private MapboxSpeech.Builder mapboxSpeechBuilder = null;
-  private List<String> urlsCached;
 
-  public VoiceInstructionLoader(Context context, String accessToken) {
+  public VoiceInstructionLoader(Context context, String accessToken, Cache cache) {
     this.connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
     this.accessToken = accessToken;
     this.urlsCached = new ArrayList<>();
-    setup(context);
+    this.cache = cache;
   }
 
-  public void evictVoiceInstructions() {
+  public List<String> evictVoiceInstructions() {
     List<String> urlsToRemove = new ArrayList<>();
     for (int i = 0; i < urlsCached.size() && i < VOICE_INSTRUCTIONS_TO_EVICT_THRESHOLD; i++) {
       String urlToRemove = urlsCached.get(i);
@@ -59,6 +56,7 @@ public class VoiceInstructionLoader {
       }
     }
     urlsCached.removeAll(urlsToRemove);
+    return urlsToRemove;
   }
 
   public void cacheInstructions(List<String> instructions) {
@@ -107,10 +105,6 @@ public class VoiceInstructionLoader {
         Timber.e("onFailure cache instruction");
       }
     });
-  }
-
-  private void setup(Context context) {
-    cache = new Cache(new File(context.getCacheDir(), OKHTTP_INSTRUCTION_CACHE), TEN_MEGABYTE_CACHE_SIZE);
   }
 
   private Interceptor provideOfflineCacheInterceptor() {
