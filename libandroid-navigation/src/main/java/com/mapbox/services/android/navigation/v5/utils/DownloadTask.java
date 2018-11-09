@@ -2,7 +2,6 @@ package com.mapbox.services.android.navigation.v5.utils;
 
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -12,6 +11,9 @@ import java.io.OutputStream;
 
 import okhttp3.ResponseBody;
 
+/**
+ * This class is an {@link AsyncTask} that downloads a file from a {@link ResponseBody}.
+ */
 public class DownloadTask extends AsyncTask<ResponseBody, Void, File> {
 
   private static final int END_OF_FILE_DENOTER = -1;
@@ -21,13 +23,29 @@ public class DownloadTask extends AsyncTask<ResponseBody, Void, File> {
   private final String extension;
   private final String fileName;
 
-  public DownloadTask(String destDirectory, String extension, @Nullable
-    DownloadListener downloadListener) {
+  /**
+   * Creates a DownloadTask with a blank file name, so each subsequent file will just be named
+   * numerically.
+   *
+   * @param destDirectory path to the directory where file should be downloaded
+   * @param extension file extension of the resulting file
+   * @param downloadListener listener to be updated on completion of the task
+   */
+  public DownloadTask(String destDirectory, String extension, DownloadListener downloadListener) {
     this(destDirectory, "", extension, downloadListener);
   }
 
-  public DownloadTask(String destDirectory, String fileName, String extension, @Nullable
-    DownloadListener downloadListener) {
+  /**
+   * Creates a DownloadTask which will download the input stream into the given
+   * destinationDirectory with the specified file name and file extension. If a listener is passed
+   *
+   * @param destDirectory path to the directory where file should be downloaded
+   * @param fileName name to name the file
+   * @param extension file extension of the resulting file
+   * @param downloadListener listener to be updated on completion of the task
+   */
+  public DownloadTask(String destDirectory, String fileName, String extension,
+                      DownloadListener downloadListener) {
     this.fileName = fileName;
     this.destDirectory = destDirectory;
     this.downloadListener = downloadListener;
@@ -47,8 +65,8 @@ public class DownloadTask extends AsyncTask<ResponseBody, Void, File> {
    */
   private File saveAsFile(ResponseBody responseBody) {
     try {
-      File file = new File(destDirectory + File.separator + fileName + getDistinguisher() + "." +
-        extension);
+      File file = new File(
+        destDirectory + File.separator + fileName + getDistinguisher() + "." + extension);
       InputStream inputStream = null;
       OutputStream outputStream = null;
 
@@ -103,6 +121,9 @@ public class DownloadTask extends AsyncTask<ResponseBody, Void, File> {
     }
   }
 
+  /**
+   * Interface which allows a Listener to be updated upon the completion of a {@link DownloadTask}.
+   */
   public interface DownloadListener {
     void onFinishedDownloading(@NonNull File file);
 

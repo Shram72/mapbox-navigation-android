@@ -4,10 +4,20 @@ import android.os.AsyncTask;
 
 import java.io.File;
 
+/**
+ * This class is an {@link AsyncTask} which monitors the unpacking of a TAR file and updates a
+ * listener so that the view can show the unpacking progress. It monitors the unpacking by
+ * periodically checking the file size, because as it's unpacked, the file size will decrease.
+ */
 public class UnpackUpdateTask extends AsyncTask<File, Long, File> {
   private UpdateListener updateListener;
 
-  public UnpackUpdateTask(UpdateListener updateListener) {
+  /**
+   * Creates a new UnpackUpdateTask to update the view via a passed {@link UpdateListener}.
+   *
+   * @param updateListener listener to update
+   */
+  UnpackUpdateTask(UpdateListener updateListener) {
     this.updateListener = updateListener;
   }
 
@@ -17,7 +27,7 @@ public class UnpackUpdateTask extends AsyncTask<File, Long, File> {
     long size = tar.length();
 
     while (tar.length() > 0) {
-      publishProgress((((tar.length()/size)) * 100));
+      publishProgress((((tar.length() / size)) * 100));
     }
 
     return tar;
@@ -36,6 +46,9 @@ public class UnpackUpdateTask extends AsyncTask<File, Long, File> {
     }
   }
 
+  /**
+   * Interface to allow view to receive updates about the progress of a file unpacking.
+   */
   public interface UpdateListener {
     void onProgressUpdate(Long progress);
   }

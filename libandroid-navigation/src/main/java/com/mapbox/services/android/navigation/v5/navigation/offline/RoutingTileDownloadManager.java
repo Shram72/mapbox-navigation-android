@@ -66,7 +66,7 @@ public class RoutingTileDownloadManager {
       }
 
       @Override
-      public void onFailure(Call<ResponseBody> call, Throwable t) {
+      public void onFailure(Call<ResponseBody> call, Throwable throwable) {
         onError();
       }
     });

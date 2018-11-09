@@ -9,10 +9,20 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * This is a wrapper class for the {@link MapboxRouteTileVersions} class. It returns a list of
+ * all available versions of Routing Tiles available via {@link OfflineTiles}. This class
+ * encapsulates the unwrapping of the list from the response.
+ */
 public class OfflineTileVersions {
 
   private final MapboxRouteTileVersions mapboxRouteTileVersions;
 
+  /**
+   * Creates a new OfflineTileVersions object with the given access token.
+   *
+   * @param accessToken to use
+   */
   public OfflineTileVersions(String accessToken) {
     this.mapboxRouteTileVersions =
       MapboxRouteTileVersions.builder()
@@ -21,7 +31,9 @@ public class OfflineTileVersions {
   }
 
   /**
+   * Call to receive all the available versions of Offline Tiles available.
    *
+   * @param versionsListener to be updated with the versions
    */
   public void getRouteTileVersions(final VersionsListener versionsListener) {
     mapboxRouteTileVersions.enqueueCall(new Callback<RouteTileVersionsResponse>() {
@@ -31,12 +43,15 @@ public class OfflineTileVersions {
       }
 
       @Override
-      public void onFailure(Call<RouteTileVersionsResponse> call, Throwable t) {
+      public void onFailure(Call<RouteTileVersionsResponse> call, Throwable throwable) {
 
       }
     });
   }
 
+  /**
+   * Interface to listen to be updated with the versions when they are recieved.
+   */
   public interface VersionsListener {
     void updateVersions(List<String> versions);
   }
