@@ -14,6 +14,10 @@ class MapboxNavigator {
 
   private final Navigator navigator;
 
+  MapboxNavigator() {
+    this(new Navigator());
+  }
+
   MapboxNavigator(Navigator navigator) {
     this.navigator = navigator;
   }
@@ -101,4 +105,5 @@ class MapboxNavigator {
     }
     return value;
   }
+
 }

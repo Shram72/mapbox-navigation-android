@@ -1,7 +1,8 @@
-package com.mapbox.services.android.navigation.ui.v5.voice;
+package com.mapbox.services.android.navigation.v5.utils;
 
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -11,17 +12,26 @@ import java.io.OutputStream;
 
 import okhttp3.ResponseBody;
 
-class SpeechDownloadTask extends AsyncTask<ResponseBody, Void, File> {
+public class DownloadTask extends AsyncTask<ResponseBody, Void, File> {
 
-  private static final String MP3_POSTFIX = ".mp3";
   private static final int END_OF_FILE_DENOTER = -1;
-  private static int instructionNamingInt = 1;
-  private final String cacheDirectory;
-  private final TaskListener taskListener;
+  private static int instructionNamingInt = 0;
+  private final String destDirectory;
+  private final DownloadListener downloadListener;
+  private final String extension;
+  private final String fileName;
 
-  SpeechDownloadTask(String cacheDirectory, TaskListener taskListener) {
-    this.cacheDirectory = cacheDirectory;
-    this.taskListener = taskListener;
+  public DownloadTask(String destDirectory, String extension, @Nullable
+    DownloadListener downloadListener) {
+    this(destDirectory, "", extension, downloadListener);
+  }
+
+  public DownloadTask(String destDirectory, String fileName, String extension, @Nullable
+    DownloadListener downloadListener) {
+    this.fileName = fileName;
+    this.destDirectory = destDirectory;
+    this.downloadListener = downloadListener;
+    this.extension = extension;
   }
 
   @Override
@@ -37,7 +47,8 @@ class SpeechDownloadTask extends AsyncTask<ResponseBody, Void, File> {
    */
   private File saveAsFile(ResponseBody responseBody) {
     try {
-      File file = new File(cacheDirectory + File.separator + instructionNamingInt++ + MP3_POSTFIX);
+      File file = new File(destDirectory + File.separator + fileName + getDistinguisher() + "." +
+        extension);
       InputStream inputStream = null;
       OutputStream outputStream = null;
 
@@ -55,7 +66,9 @@ class SpeechDownloadTask extends AsyncTask<ResponseBody, Void, File> {
         return file;
 
       } catch (IOException exception) {
-        taskListener.onErrorDownloading();
+        if (downloadListener != null) {
+          downloadListener.onErrorDownloading();
+        }
         return null;
 
       } finally {
@@ -73,16 +86,24 @@ class SpeechDownloadTask extends AsyncTask<ResponseBody, Void, File> {
     }
   }
 
+  private String getDistinguisher() {
+    return instructionNamingInt++ > 0 ? "" + instructionNamingInt : "";
+  }
+
   @Override
   protected void onPostExecute(File instructionFile) {
+    if (downloadListener == null) {
+      return;
+    }
+
     if (instructionFile == null) {
-      taskListener.onErrorDownloading();
+      downloadListener.onErrorDownloading();
     } else {
-      taskListener.onFinishedDownloading(instructionFile);
+      downloadListener.onFinishedDownloading(instructionFile);
     }
   }
 
-  public interface TaskListener {
+  public interface DownloadListener {
     void onFinishedDownloading(@NonNull File file);
 
     void onErrorDownloading();
