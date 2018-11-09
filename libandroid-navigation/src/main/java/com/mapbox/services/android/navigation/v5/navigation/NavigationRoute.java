@@ -42,12 +42,12 @@ public final class NavigationRoute {
   private final MapboxDirections mapboxDirections;
 
   /**
-   * Private constructor used for the {@link Builder#build()} method.
+   * Package private constructor used for the {@link Builder#build()} method.
    *
    * @param mapboxDirections a new instance of a {@link MapboxDirections} class
    * @since 0.5.0
    */
-  private NavigationRoute(MapboxDirections mapboxDirections) {
+  NavigationRoute(MapboxDirections mapboxDirections) {
     this.mapboxDirections = mapboxDirections;
   }
 
@@ -91,8 +91,14 @@ public final class NavigationRoute {
     return mapboxDirections.cloneCall();
   }
 
+  /**
+   * Wrapper method for Retrofits {@link Call#cancel()} call, important to manually cancel call if
+   * the user dismisses the calling activity or no longer needs the returned results.
+   */
   public void cancelCall() {
-    getCall().cancel();
+    if (!getCall().isExecuted()) {
+      getCall().cancel();
+    }
   }
 
   /**
