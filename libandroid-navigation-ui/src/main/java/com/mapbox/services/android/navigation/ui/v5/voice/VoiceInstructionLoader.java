@@ -27,7 +27,7 @@ public class VoiceInstructionLoader {
   private static final String SSML_TEXT_TYPE = "ssml";
   private final ConnectivityManager connectivityManager;
   private final String accessToken;
-  private final List<String> urlsCached;
+  private List<String> urlsCached;
   private final Cache cache;
   private MapboxSpeech.Builder mapboxSpeechBuilder = null;
 
@@ -49,6 +49,7 @@ public class VoiceInstructionLoader {
           if (url.equals(urlToRemove)) {
             urlCached.remove();
             urlsToRemove.add(urlToRemove);
+            break;
           }
         }
       } catch (IOException exception) {
@@ -63,6 +64,11 @@ public class VoiceInstructionLoader {
     for (String instruction : instructions) {
       cacheInstruction(instruction);
     }
+  }
+
+  // Package private (no modifier) for testing purposes
+  void addStubUrlsToCache(List<String> urlsToCache) {
+    this.urlsCached = urlsToCache;
   }
 
   void setupMapboxSpeechBuilder(String language) {
